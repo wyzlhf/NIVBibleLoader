@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/NIVBible.iml" filepath="$PROJECT_DIR$/.idea/NIVBible.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/NIVBibleLoader.iml" filepath="$PROJECT_DIR$/.idea/NIVBibleLoader.iml" />
     </modules>
   </component>
 </project>
