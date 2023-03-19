@@ -30,7 +30,7 @@ def get_mp3_url(url: str) -> str:
 
 def load_mp3(chapter_name: str, paragrph: int, url: str, save_path: str = './') -> None:
     r = requests.get(url)
-    mp3_name: str = chapter_name + '.' + str(paragrph)+'.mp3'
+    mp3_name: str = chapter_name + '.' + str(paragrph) + '.mp3'
     save_path = save_path + '/' + mp3_name
     # all_path:str=sa
     with open(save_path, "wb") as f:
@@ -45,7 +45,7 @@ def get_all_mp3():
         book_name: str = book['display']
         total_paragrph: int = int(book['chapters'])
         for i in range(total_paragrph):
-            print(f'开始下载{book_name}章第{i+1}节')
+            print(f'开始下载{book_name}章第{i + 1}节')
             chapter_url = join_to_chapter_url(book_name, i + 1)
             mp3_src = get_mp3_url(chapter_url)
             load_mp3(book_name, i + 1, mp3_src)
