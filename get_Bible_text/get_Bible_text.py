@@ -1,9 +1,9 @@
 # 从 http://www.godcom.net/ 获取圣经文本
 from typing import List, Dict
-
 import requests
 from bs4 import BeautifulSoup, ResultSet
 from docx import Document
+
 
 # def get_version_index_url(version: str = 'niv') -> str:
 #     print('开始生成版本链接')
@@ -73,7 +73,7 @@ def get_Bible_chapters(index_url: str = 'http://www.godcom.net/niv/index.htm') -
             one_paragraph_order: str = paragraph_td_tag.text
             one_paragraph_link: str = 'http://www.godcom.net/niv/' + paragraph_td_tag.get('href')
             # print(one_paragraph_link)
-            one_paragraph_dict['order']=one_paragraph_order
+            one_paragraph_dict['order'] = one_paragraph_order
             one_paragraph_dict['link'] = one_paragraph_link
             paragraph_links_list.append(one_paragraph_dict)
         one_chapter_dict['paragraph_links_list'] = paragraph_links_list
@@ -82,24 +82,43 @@ def get_Bible_chapters(index_url: str = 'http://www.godcom.net/niv/index.htm') -
     return Bible_content_structure
 
 
-def write_content_to_docx(file_name:str='NIV Bible',path: str = '.') -> None:
+def write_content_to_docx(file_name: str = 'NIV Bible', path: str = '.', file_type: str = 'docx') -> None:
     document = Document()
-    path_and_name:str=path+'/'+file_name
-    Bible_content_structure:List[Dict] = get_Bible_chapters()
+    path_and_name: str = path + '/' + file_name + '.' + file_type
+    Bible_content_structure: List[Dict] = get_Bible_chapters()
     for item in Bible_content_structure:
-        chapter_title:str=item['chapter_title']
+        chapter_title: str = item['chapter_title']
         document.add_heading(chapter_title)
+        print(f'{chapter_title}章开始写入')
         for paragraph in item['paragraph_links_list']:
-            paragraph_order=paragraph['order']
+            paragraph_order = paragraph['order']
             paragraph_link = paragraph['link']
-            document.add_heading(paragraph_order,level=2)
-            document.add_paragraph
-            print(paragraph)
+            paragraph_text_list: List[str] = get_paragraph_content(paragraph_link)
+            document.add_heading(paragraph_order, level=2)
+            for text in paragraph_text_list:
+                document.add_paragraph(text)
+            print(f'{chapter_title}第{paragraph_order}小节写入完成')
+        # document.add_break()
     document.save(path_and_name)
-def get_paragraph_content(paragraph_url:str='http://www.godcom.net/niv/B01C001.htm')->str:
-    r=requests.get(paragraph_url).text
-    print(r)
+    print('=====================全部文档写入成功=====================')
+
+
+def get_paragraph_content(paragraph_url: str = 'http://www.godcom.net/niv/B01C001.htm') -> List[str]:
+    paragraph_text_list: List[str] = []
+    r = requests.get(paragraph_url).text
+    soup = BeautifulSoup(r, features="lxml")
+    try:
+        whole_paragraph_text_contain_num: ResultSet = soup.find_all('table')[1]
+    except IndexError:
+        whole_paragraph_text_contain_num: ResultSet = soup.find_all('table')[0]
+    tr_in_whole_paragraph_text_contain_num: ResultSet = whole_paragraph_text_contain_num.find_all('tr')[:-1]
+    for item in tr_in_whole_paragraph_text_contain_num:
+        text_td = item.find_all('td')[1]
+        paragraph_text_list.append(text_td.text)
+    # print(whole_paragraph_text_contain_num.find_all('tr'))
+    return paragraph_text_list
+
 
 if __name__ == '__main__':
-    # write_content_to_docx()
-    get_paragraph_content()
+    write_content_to_docx()
+    # print(get_paragraph_content())
